@@ -1,0 +1,98 @@
+@keyframes zoomCenter {
+  0% { transform: scale(1.05) translateX(0); transform-origin: center center; }
+  100% { transform: scale(1.15) translateX(0); transform-origin: center center; }
+}
+
+@keyframes zoomLeft {
+  0% { transform: scale(1.05) translateX(0); transform-origin: left center; }
+  100% { transform: scale(1.15) translateX(0); transform-origin: left center; }
+}
+
+@keyframes zoomRight {
+  0% { transform: scale(1.05) translateX(0); transform-origin: right center; }
+  100% { transform: scale(1.15) translateX(0); transform-origin: right center; }
+}
+
+@media (max-width: 768px) {
+    .carousel-image {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .carousel-image img {
+        width: auto !important;
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: 80vh !important;
+        object-fit: cover ;
+    }
+}
+
+@media (min-width: 769px) {
+    .carousel-image img {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 100vh !important;
+        object-fit: cover;
+    }
+}
+
+.carousel-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation-duration: 5s;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-in-out;
+}
+
+.carousel-container {
+    transition: opacity 0.3s ease;
+    width: 100vw;
+    height: 100vh;
+}
+
+.carousel-image {
+    opacity: 0;
+    transition: opacity 0.7s ease-in-out;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+}
+
+.carousel-image.active {
+    opacity: 1;
+    pointer-events: auto;
+    display: block;
+}
+
+
+.carousel-image:not(.active) {
+    opacity: 0;
+    transform: scale(1);
+}
+
+.thumbnail.active {
+    border-color: #3b82f6;
+    transform: scale(1.05);
+}
+
+#thumbnailBar {
+    scrollbar-width: none;
+}
+
+#thumbnailBar::-webkit-scrollbar {
+    display: none;
+}
+
+#audioOverlay {
+    transition: opacity 0.5s ease;
+}
+
+#audioOverlay.opacity-0 {
+    opacity: 0;
+    pointer-events: none;
+}
