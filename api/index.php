@@ -48,6 +48,13 @@ $defaults = [
     'APP_CONFIG_CACHE'       => $storagePath . '/framework/cache/config.php',
     'APP_ROUTES_CACHE'       => $storagePath . '/framework/cache/routes.php',
     'APP_EVENTS_CACHE'       => $storagePath . '/framework/cache/events.php',
+    'DB_CONNECTION'          => 'pgsql',
+    'DB_HOST'                => 'aws-0-ap-northeast-1.pooler.supabase.com',
+    'DB_PORT'                => '6543',
+    'DB_DATABASE'            => 'postgres',
+    'DB_USERNAME'            => 'postgres.buumwmajwkygfsbxxdey',
+    'DB_PASSWORD'            => 'Sona@7869200',
+    'DB_SSLMODE'             => 'require',
 ];
 
 foreach ($defaults as $k => $v) {
@@ -57,25 +64,6 @@ foreach ($defaults as $k => $v) {
         $_ENV[$k] = $v;
         $_SERVER[$k] = $v;
     }
-}
-
-// Auto-detect Supabase / PostgreSQL database URL
-if (getenv('DATABASE_URL') || getenv('DB_URL')) {
-    putenv('DB_CONNECTION=pgsql');
-    $_ENV['DB_CONNECTION'] = 'pgsql';
-    $_SERVER['DB_CONNECTION'] = 'pgsql';
-} elseif (!getenv('DB_CONNECTION') || getenv('DB_CONNECTION') === 'sqlite' || (!getenv('DB_HOST') || getenv('DB_HOST') === '127.0.0.1')) {
-    // Fallback SQLite database in /tmp
-    $sqliteDb = '/tmp/database.sqlite';
-    if (!file_exists($sqliteDb)) {
-        @touch($sqliteDb);
-    }
-    putenv('DB_CONNECTION=sqlite');
-    putenv('DB_DATABASE=' . $sqliteDb);
-    $_ENV['DB_CONNECTION'] = 'sqlite';
-    $_ENV['DB_DATABASE'] = $sqliteDb;
-    $_SERVER['DB_CONNECTION'] = 'sqlite';
-    $_SERVER['DB_DATABASE'] = $sqliteDb;
 }
 
 try {
