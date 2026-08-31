@@ -4,14 +4,16 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
-// Prepare serverless storage in /tmp
+// Prepare serverless storage and cache in /tmp
 $storagePath = '/tmp/storage';
 $dirs = [
     $storagePath . '/framework/views',
     $storagePath . '/framework/cache/data',
+    $storagePath . '/framework/cache',
     $storagePath . '/framework/sessions',
     $storagePath . '/logs',
     $storagePath . '/app/public',
+    $storagePath . '/bootstrap/cache',
 ];
 
 foreach ($dirs as $dir) {
@@ -20,12 +22,33 @@ foreach ($dirs as $dir) {
     }
 }
 
-putenv('VIEW_COMPILED_PATH=' . $storagePath . '/framework/views');
-putenv('APP_STORAGE=' . $storagePath);
+// Copy pre-compiled bootstrap cache to writable /tmp directory if available
+$srcCache = __DIR__ . '/../bootstrap/cache';
+if (is_dir($srcCache)) {
+    @copy($srcCache . '/packages.php', $storagePath . '/framework/cache/packages.php');
+    @copy($srcCache . '/services.php', $storagePath . '/framework/cache/services.php');
+}
+
+$cacheVars = [
+    'VIEW_COMPILED_PATH' => $storagePath . '/framework/views',
+    'APP_STORAGE'        => $storagePath,
+    'APP_PACKAGES_CACHE' => $storagePath . '/framework/cache/packages.php',
+    'APP_SERVICES_CACHE' => $storagePath . '/framework/cache/services.php',
+    'APP_CONFIG_CACHE'   => $storagePath . '/framework/cache/config.php',
+    'APP_ROUTES_CACHE'   => $storagePath . '/framework/cache/routes.php',
+    'APP_EVENTS_CACHE'   => $storagePath . '/framework/cache/events.php',
+];
+
+foreach ($cacheVars as $key => $val) {
+    putenv("$key=$val");
+    $_ENV[$key] = $val;
+    $_SERVER[$key] = $val;
+}
 
 if (!getenv('APP_KEY')) {
     putenv('APP_KEY=base64:Xvymu8Aa4RjuA/40T6aD6K7RjdRax0nP639dt82pcDg=');
     $_ENV['APP_KEY'] = 'base64:Xvymu8Aa4RjuA/40T6aD6K7RjdRax0nP639dt82pcDg=';
+    $_SERVER['APP_KEY'] = 'base64:Xvymu8Aa4RjuA/40T6aD6K7RjdRax0nP639dt82pcDg=';
 }
 
 // Fallback SQLite database in /tmp if MySQL is unreachable or not configured
@@ -38,6 +61,8 @@ if (!getenv('DB_CONNECTION') || getenv('DB_CONNECTION') === 'sqlite' || (!getenv
     putenv('DB_DATABASE=' . $sqliteDb);
     $_ENV['DB_CONNECTION'] = 'sqlite';
     $_ENV['DB_DATABASE'] = $sqliteDb;
+    $_SERVER['DB_CONNECTION'] = 'sqlite';
+    $_SERVER['DB_DATABASE'] = $sqliteDb;
 }
 
 try {
