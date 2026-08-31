@@ -70,10 +70,43 @@ foreach ($defaults as $k => $v) {
 }
 
 // Auto-detect Supabase / PostgreSQL database URL or credentials
-if (getenv('DATABASE_URL') || getenv('DB_URL')) {
+$rawDbUrl = getenv('DATABASE_URL') ?: getenv('DB_URL');
+if ($rawDbUrl) {
     putenv('DB_CONNECTION=pgsql');
     $_ENV['DB_CONNECTION'] = 'pgsql';
     $_SERVER['DB_CONNECTION'] = 'pgsql';
+
+    // Safe regex for DATABASE_URL with @ inside password
+    if (preg_match('#^postgres(?:ql)?://([^:]+):(.*)@([^@:/]+)(?::(\d+))?/(.+)$#', $rawDbUrl, $m)) {
+        $dbUser = urldecode($m[1]);
+        $dbPass = urldecode($m[2]);
+        $dbHost = $m[3];
+        $dbPort = $m[4] ?: '6543';
+        $dbName = explode('?', $m[5])[0] ?: 'postgres';
+
+        putenv("DB_USERNAME=$dbUser");
+        putenv("DB_PASSWORD=$dbPass");
+        putenv("DB_HOST=$dbHost");
+        putenv("DB_PORT=$dbPort");
+        putenv("DB_DATABASE=$dbName");
+
+        $_ENV['DB_USERNAME'] = $dbUser;
+        $_ENV['DB_PASSWORD'] = $dbPass;
+        $_ENV['DB_HOST'] = $dbHost;
+        $_ENV['DB_PORT'] = $dbPort;
+        $_ENV['DB_DATABASE'] = $dbName;
+
+        $_SERVER['DB_USERNAME'] = $dbUser;
+        $_SERVER['DB_PASSWORD'] = $dbPass;
+        $_SERVER['DB_HOST'] = $dbHost;
+        $_SERVER['DB_PORT'] = $dbPort;
+        $_SERVER['DB_DATABASE'] = $dbName;
+
+        // Clear raw unencoded URL so Laravel uses parsed components directly
+        putenv('DATABASE_URL=');
+        putenv('DB_URL=');
+        unset($_ENV['DATABASE_URL'], $_ENV['DB_URL'], $_SERVER['DATABASE_URL'], $_SERVER['DB_URL']);
+    }
 } elseif (!getenv('DB_CONNECTION') && (!getenv('DB_HOST') || getenv('DB_HOST') === '127.0.0.1')) {
     // Fallback SQLite database in /tmp if no cloud DB configured
     $sqliteDb = '/tmp/database.sqlite';
