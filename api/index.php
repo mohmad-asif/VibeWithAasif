@@ -22,11 +22,10 @@ foreach ($dirs as $dir) {
     }
 }
 
-// Copy pre-compiled bootstrap cache to writable /tmp directory if available
-$srcCache = __DIR__ . '/../bootstrap/cache';
-if (is_dir($srcCache)) {
-    @copy($srcCache . '/packages.php', $storagePath . '/framework/cache/packages.php');
-    @copy($srcCache . '/services.php', $storagePath . '/framework/cache/services.php');
+// Copy production packages.php if available
+$srcPackages = __DIR__ . '/../bootstrap/cache/packages.php';
+if (file_exists($srcPackages)) {
+    @copy($srcPackages, $storagePath . '/framework/cache/packages.php');
 }
 
 $cacheVars = [
