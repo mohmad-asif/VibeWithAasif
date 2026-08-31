@@ -12,6 +12,11 @@ $app = Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        $middleware->encryptCookies(except: [
+            'vibe_session',
+            'laravel_session',
+            'XSRF-TOKEN',
+        ]);
         $middleware->validateCsrfTokens(except: [
             'register',
             'register/*',
