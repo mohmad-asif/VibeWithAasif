@@ -37,7 +37,7 @@ $defaults = [
     'APP_ENV'                => 'production',
     'APP_URL'                => $dynamicAppUrl,
     'APP_KEY'                => 'base64:Xvymu8Aa4RjuA/40T6aD6K7RjdRax0nP639dt82pcDg=',
-    'SESSION_DRIVER'         => 'cookie',
+    'SESSION_DRIVER'         => 'database',
     'SESSION_SECURE_COOKIE'  => 'true',
     'SESSION_SAME_SITE'      => 'lax',
     'SESSION_COOKIE'         => 'vibe_session',
