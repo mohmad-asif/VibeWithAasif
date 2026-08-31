@@ -59,8 +59,13 @@ foreach ($defaults as $k => $v) {
     }
 }
 
-// Fallback SQLite database in /tmp if MySQL is unreachable or not configured
-if (!getenv('DB_CONNECTION') || getenv('DB_CONNECTION') === 'sqlite' || (!getenv('DB_HOST') && !getenv('DATABASE_URL'))) {
+// Auto-detect Supabase / PostgreSQL database URL
+if (getenv('DATABASE_URL') || getenv('DB_URL')) {
+    putenv('DB_CONNECTION=pgsql');
+    $_ENV['DB_CONNECTION'] = 'pgsql';
+    $_SERVER['DB_CONNECTION'] = 'pgsql';
+} elseif (!getenv('DB_CONNECTION') || getenv('DB_CONNECTION') === 'sqlite' || (!getenv('DB_HOST') || getenv('DB_HOST') === '127.0.0.1')) {
+    // Fallback SQLite database in /tmp
     $sqliteDb = '/tmp/database.sqlite';
     if (!file_exists($sqliteDb)) {
         @touch($sqliteDb);
