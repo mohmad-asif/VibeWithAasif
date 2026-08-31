@@ -115,30 +115,35 @@ class PostController extends Controller
 
     public function home(Request $request)
     {
-        $query = Post::with(['images' => fn($q) => $q->limit(1)]);
-
-        // Guests only active
-        if (!Auth::check()) {
-            $query->where('is_active', true);
-        }
-
-        // Search
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', "%{$request->search}%")
-                    ->orWhere('category', 'like', "%{$request->search}%");
-            });
-        }
-
-        // Status filter for logged-in users
         $status = $request->get('status', Auth::check() ? 'all' : 'active');
 
-        if (Auth::check()) {
-            $query->when($status === 'active', fn($q) => $q->where('is_active', true))
-                ->when($status === 'inactive', fn($q) => $q->where('is_active', false));
-        }
+        try {
+            $query = Post::with(['images' => fn($q) => $q->limit(1)]);
 
-        $posts = $query->latest()->paginate(6)->withQueryString();
+            // Guests only active
+            if (!Auth::check()) {
+                $query->where('is_active', true);
+            }
+
+            // Search
+            if ($request->filled('search')) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('title', 'like', "%{$request->search}%")
+                        ->orWhere('category', 'like', "%{$request->search}%");
+                });
+            }
+
+            // Status filter for logged-in users
+            if (Auth::check()) {
+                $query->when($status === 'active', fn($q) => $q->where('is_active', true))
+                    ->when($status === 'inactive', fn($q) => $q->where('is_active', false));
+            }
+
+            $posts = $query->latest()->paginate(6)->withQueryString();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Home query exception: ' . $e->getMessage());
+            $posts = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 6);
+        }
 
         return view('home', [
             'posts' => $posts,

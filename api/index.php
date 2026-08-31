@@ -1,18 +1,26 @@
 <?php
 
-// Forward Vercel serverless requests to normal public/index.php
+// Prepare serverless writable directories in /tmp for Vercel
 $storagePath = '/tmp/storage';
-if (!is_dir($storagePath . '/framework/views')) {
-    @mkdir($storagePath . '/framework/views', 0777, true);
-    @mkdir($storagePath . '/framework/cache/data', 0777, true);
-    @mkdir($storagePath . '/framework/sessions', 0777, true);
-    @mkdir($storagePath . '/logs', 0777, true);
+$dirs = [
+    $storagePath . '/framework/views',
+    $storagePath . '/framework/cache/data',
+    $storagePath . '/framework/sessions',
+    $storagePath . '/logs',
+    $storagePath . '/app/public',
+];
+
+foreach ($dirs as $dir) {
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
 }
 
 putenv('VIEW_COMPILED_PATH=' . $storagePath . '/framework/views');
-putenv('APP_CONFIG_CACHE=' . $storagePath . '/config.php');
-putenv('APP_SERVICES_CACHE=' . $storagePath . '/services.php');
-putenv('APP_PACKAGES_CACHE=' . $storagePath . '/packages.php');
-putenv('APP_ROUTES_CACHE=' . $storagePath . '/routes.php');
+putenv('APP_STORAGE=' . $storagePath);
+
+if (!getenv('APP_KEY')) {
+    putenv('APP_KEY=base64:Xvymu8Aa4RjuA/40T6aD6K7RjdRax0nP639dt82pcDg=');
+}
 
 require __DIR__ . '/../public/index.php';
