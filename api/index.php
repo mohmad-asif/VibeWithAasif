@@ -32,7 +32,7 @@ $defaults = [
     'APP_NAME'               => 'Vibe With Aasif',
     'APP_ENV'                => 'production',
     'APP_KEY'                => 'base64:Xvymu8Aa4RjuA/40T6aD6K7RjdRax0nP639dt82pcDg=',
-    'SESSION_DRIVER'         => 'cookie',
+    'SESSION_DRIVER'         => 'database',
     'CACHE_STORE'            => 'array',
     'LOG_CHANNEL'            => 'stderr',
     'QUEUE_CONNECTION'       => 'sync',
