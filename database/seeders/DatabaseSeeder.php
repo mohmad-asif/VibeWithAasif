@@ -13,11 +13,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::firstOrCreate(
+        \App\Models\User::updateOrCreate(
             ['email' => 'admin@vibewithaasif.com'],
             [
                 'name' => 'Aasif Khan',
-                'password' => 'password123',
+                'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            ]
+        );
+
+        \App\Models\User::updateOrCreate(
+            ['email' => 'aasifdhareja@gmail.com'],
+            [
+                'name' => 'Aasif Dhareja',
+                'password' => \Illuminate\Support\Facades\Hash::make('Sona@78692'),
             ]
         );
 
