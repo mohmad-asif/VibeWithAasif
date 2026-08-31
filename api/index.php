@@ -28,9 +28,14 @@ if (file_exists($srcPackages)) {
     @copy($srcPackages, $storagePath . '/framework/cache/packages.php');
 }
 
+$proto = (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http');
+$host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? 'localhost';
+$dynamicAppUrl = ($host !== 'localhost') ? ($proto . '://' . $host) : 'http://localhost';
+
 $defaults = [
     'APP_NAME'               => 'Vibe With Aasif',
     'APP_ENV'                => 'production',
+    'APP_URL'                => $dynamicAppUrl,
     'APP_KEY'                => 'base64:Xvymu8Aa4RjuA/40T6aD6K7RjdRax0nP639dt82pcDg=',
     'SESSION_DRIVER'         => 'database',
     'CACHE_STORE'            => 'array',
