@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\User::updateOrCreate(
+        $user = \App\Models\User::updateOrCreate(
             ['email' => 'admin@vibewithaasif.com'],
             [
                 'name' => 'Aasif Khan',
