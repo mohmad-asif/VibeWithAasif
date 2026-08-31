@@ -1,5 +1,5 @@
 <x-layout title="Welcome Back 👋" width="max-w-md">
-    <form method="POST" action="{{ route('login') }}" class="space-y-4">
+    <form method="POST" action="{{ route('login.submit') }}" class="space-y-4">
         @csrf
         <div>
             <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Email Address</label>
@@ -30,7 +30,7 @@
 
         <p class="text-center text-xs sm:text-sm text-slate-500 pt-3">
             Don’t have an account yet?
-            <a href="{{ route('register.show') }}" class="font-bold text-purple-600 hover:text-purple-700 underline decoration-purple-400/40 underline-offset-2 ml-1">
+            <a href="{{ route('register') }}" class="font-bold text-purple-600 hover:text-purple-700 underline decoration-purple-400/40 underline-offset-2 ml-1">
                 Sign up free
             </a>
         </p>
