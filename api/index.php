@@ -28,26 +28,35 @@ if (file_exists($srcPackages)) {
     @copy($srcPackages, $storagePath . '/framework/cache/packages.php');
 }
 
-$cacheVars = [
-    'VIEW_COMPILED_PATH' => $storagePath . '/framework/views',
-    'APP_STORAGE'        => $storagePath,
-    'APP_PACKAGES_CACHE' => $storagePath . '/framework/cache/packages.php',
-    'APP_SERVICES_CACHE' => $storagePath . '/framework/cache/services.php',
-    'APP_CONFIG_CACHE'   => $storagePath . '/framework/cache/config.php',
-    'APP_ROUTES_CACHE'   => $storagePath . '/framework/cache/routes.php',
-    'APP_EVENTS_CACHE'   => $storagePath . '/framework/cache/events.php',
+$defaults = [
+    'APP_NAME'               => 'Vibe With Aasif',
+    'APP_ENV'                => 'production',
+    'APP_KEY'                => 'base64:Xvymu8Aa4RjuA/40T6aD6K7RjdRax0nP639dt82pcDg=',
+    'SESSION_DRIVER'         => 'cookie',
+    'CACHE_STORE'            => 'array',
+    'LOG_CHANNEL'            => 'stderr',
+    'QUEUE_CONNECTION'       => 'sync',
+    'MAIL_MAILER'            => 'log',
+    'AUTH_GUARD'             => 'web',
+    'BROADCAST_CONNECTION'   => 'log',
+    'FILESYSTEM_DISK'        => 'local',
+    'APP_MAINTENANCE_DRIVER' => 'file',
+    'VIEW_COMPILED_PATH'     => $storagePath . '/framework/views',
+    'APP_STORAGE'            => $storagePath,
+    'APP_PACKAGES_CACHE'     => $storagePath . '/framework/cache/packages.php',
+    'APP_SERVICES_CACHE'     => $storagePath . '/framework/cache/services.php',
+    'APP_CONFIG_CACHE'       => $storagePath . '/framework/cache/config.php',
+    'APP_ROUTES_CACHE'       => $storagePath . '/framework/cache/routes.php',
+    'APP_EVENTS_CACHE'       => $storagePath . '/framework/cache/events.php',
 ];
 
-foreach ($cacheVars as $key => $val) {
-    putenv("$key=$val");
-    $_ENV[$key] = $val;
-    $_SERVER[$key] = $val;
-}
-
-if (!getenv('APP_KEY')) {
-    putenv('APP_KEY=base64:Xvymu8Aa4RjuA/40T6aD6K7RjdRax0nP639dt82pcDg=');
-    $_ENV['APP_KEY'] = 'base64:Xvymu8Aa4RjuA/40T6aD6K7RjdRax0nP639dt82pcDg=';
-    $_SERVER['APP_KEY'] = 'base64:Xvymu8Aa4RjuA/40T6aD6K7RjdRax0nP639dt82pcDg=';
+foreach ($defaults as $k => $v) {
+    $current = getenv($k);
+    if ($current === false || $current === null || trim((string) $current) === '') {
+        putenv("$k=$v");
+        $_ENV[$k] = $v;
+        $_SERVER[$k] = $v;
+    }
 }
 
 // Fallback SQLite database in /tmp if MySQL is unreachable or not configured
