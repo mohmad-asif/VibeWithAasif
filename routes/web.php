@@ -8,11 +8,13 @@ Route::get('/', [PostController::class, 'home'])->name('home');
 Route::get('/blog/{post}', [PostController::class, 'show'])->name('posts.show');
 
 Route::middleware('guest')->group(function () {
-    Route::get('/register', [AuthController::class, 'showRegisterPage'])->name('register.show');
-    Route::post('/register', [AuthController::class, 'register'])->name('register');
+    Route::get('/register', [AuthController::class, 'showRegisterPage'])->name('register');
+    Route::get('/register-page', [AuthController::class, 'showRegisterPage'])->name('register.show');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
-    Route::get('/login', [AuthController::class, 'showLoginPage'])->name('login.show');
-    Route::post('/login', [AuthController::class, 'login'])->name('login');
+    Route::get('/login', [AuthController::class, 'showLoginPage'])->name('login');
+    Route::get('/login-page', [AuthController::class, 'showLoginPage'])->name('login.show');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 });
 
 Route::middleware('auth')->group(function () {

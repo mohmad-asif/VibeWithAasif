@@ -1,97 +1,161 @@
-    <x-app-layout title="Home">
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-            @auth
-            <h2 class="text-2xl font-bold">All Posts</h2>
-            @else
-            <div></div>
-            @endauth
+<x-app-layout title="Home">
+    <!-- Main Content Container -->
+    <div id="posts-section" class="space-y-8">
 
-            <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
-                <form method="GET" action="{{ route('home') }}"
-                    class="flex gap-3 items-center w-full sm:w-auto" id="searchForm">
-                    <div class="relative flex-1 sm:flex-none">
-                        <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Search posts..."
-                            class="pl-10 pr-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:outline-none w-full sm:w-64"
-                            id="searchInput">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="w-5 h-5 absolute left-3 top-2.5 text-gray-400"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
-                        </svg>
-                    </div>
+        <!-- Top Header & Search Bar -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white/80 backdrop-blur-md p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-heading">
                     @auth
-                    <select name="status" onchange="this.form.submit()"
-                        class="px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500">
-                        <option value="active" {{ $status == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ $status == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                        <option value="all" {{ $status == 'all' ? 'selected' : '' }}>All</option>
-                    </select>
+                        Latest Community Posts
+                    @else
+                        Explore Trending Vibes
+                    @endauth
+                </h2>
+                <p class="text-sm text-slate-500 mt-1">
+                    Discover inspiring articles, insights, and shared moments.
+                </p>
+            </div>
+
+            <!-- Search & Filters -->
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full md:w-auto">
+                <form method="GET" action="{{ route('home') }}" class="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3 items-center w-full sm:w-auto" id="searchForm">
+                    <div class="relative flex-1 sm:w-72">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Search by title or category..."
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50/50 text-slate-900 text-sm focus:ring-2 focus:ring-purple-500 focus:bg-white focus:outline-none transition"
+                            id="searchInput">
+                        <i class="fas fa-search absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        @if(request('search'))
+                        <a href="{{ route('home') }}" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs px-1 py-0.5" title="Clear search">
+                            <i class="fas fa-times-circle text-sm"></i>
+                        </a>
+                        @endif
+                    </div>
+
+                    @auth
+                    <div class="w-full sm:w-auto">
+                        <select name="status" onchange="this.form.submit()"
+                            class="w-full sm:w-auto px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50/50 text-slate-800 text-sm font-medium focus:ring-2 focus:ring-purple-500 focus:bg-white focus:outline-none transition">
+                            <option value="all" {{ $status == 'all' ? 'selected' : '' }}>All Status</option>
+                            <option value="active" {{ $status == 'active' ? 'selected' : '' }}>Active Only</option>
+                            <option value="inactive" {{ $status == 'inactive' ? 'selected' : '' }}>Inactive Only</option>
+                        </select>
+                    </div>
                     @endauth
                 </form>
 
                 @auth
                 <a href="{{ route('posts.create') }}"
-                    class="px-5 py-2.5 rounded-xl bg-purple-600 text-white font-semibold shadow hover:bg-purple-800 text-center">
-                    New Post
+                    class="gradient-btn px-5 py-2.5 rounded-xl text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 whitespace-nowrap">
+                    <i class="fas fa-plus"></i> New Post
+                </a>
+                @else
+                <a href="{{ route('posts.create') }}"
+                    class="gradient-btn px-5 py-2.5 rounded-xl text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 whitespace-nowrap">
+                    <i class="fas fa-plus"></i> Create Post
                 </a>
                 @endauth
             </div>
         </div>
 
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Posts Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             @forelse($posts as $post)
-            <div class="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-gray-100">
-                <div class="relative overflow-hidden">
+            <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl card-hover border border-slate-200/80 flex flex-col transition-all duration-300 group">
+                
+                <!-- Image / Banner Container -->
+                <div class="relative h-56 sm:h-60 overflow-hidden bg-slate-100">
                     @if($post->images->first())
-                    <a href="{{ route('posts.show', $post) }}" target="_blank">
+                    <a href="{{ route('posts.show', $post) }}" class="block w-full h-full">
                         <img src="{{ asset('storage/'.$post->images->first()->path) }}"
-                            class="w-full h-60 object-cover post-image">
+                            alt="{{ $post->title }}"
+                            class="w-full h-full object-cover post-image transition-transform duration-500 group-hover:scale-105"
+                            onerror="this.onerror=null; this.src='{{ asset('images/headers/header1.jpg') }}';">
                     </a>
                     @else
-                    <div class="w-full h-48 gradient-bg flex items-center justify-center">
-                        <i class="far fa-newspaper text-white text-5xl"></i>
+                    <div class="w-full h-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex flex-col items-center justify-center text-white p-4">
+                        <i class="fas fa-layer-group text-4xl opacity-80 mb-2"></i>
+                        <span class="text-xs font-semibold uppercase tracking-wider opacity-90">{{ $post->category ?? 'Post' }}</span>
                     </div>
                     @endif
 
+                    <!-- Category Badge (Top-Left) -->
+                    <div class="absolute top-3 left-3 z-10">
+                        @php
+                            $cat = $post->category ?? 'General';
+                            $badgeColor = match(strtolower($cat)) {
+                                'technology' => 'bg-blue-600/90 text-white',
+                                'health' => 'bg-emerald-600/90 text-white',
+                                'business' => 'bg-amber-600/90 text-white',
+                                'sports' => 'bg-rose-600/90 text-white',
+                                'education' => 'bg-purple-600/90 text-white',
+                                default => 'bg-slate-800/90 text-white',
+                            };
+                        @endphp
+                        <span class="px-3 py-1 rounded-full text-xs font-bold shadow-md backdrop-blur-md {{ $badgeColor }}">
+                            {{ $cat }}
+                        </span>
+                    </div>
+
+                    <!-- Status Badge for Auth (Top-Right) -->
                     @auth
-                    <div class="status-badge">
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $post->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                    <div class="absolute top-3 right-3 z-10">
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold shadow-md backdrop-blur-md {{ $post->is_active ? 'bg-green-500 text-white' : 'bg-red-500 text-white' }}">
                             {{ $post->is_active ? 'Active' : 'Inactive' }}
                         </span>
                     </div>
                     @endauth
 
+                    <!-- Image Count Indicator -->
+                    @if($post->images->count() > 1)
+                    <div class="absolute bottom-3 right-3 z-10 bg-black/60 backdrop-blur-sm text-white px-2 py-0.5 rounded-md text-xs font-semibold flex items-center gap-1">
+                        <i class="fas fa-images text-[10px]"></i> {{ $post->images->count() }}
+                    </div>
+                    @endif
                 </div>
 
-                <!-- Card Content -->
-                <div class="p-4 ">
-                    <h3 class="font-bold text-lg mb-2 text-gray-800 line-clamp-1 text-center">
-                        {{ $post->title }}
-                    </h3>
+                <!-- Card Body -->
+                <div class="p-5 flex flex-col flex-1 justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                            <span><i class="far fa-calendar-alt mr-1"></i>{{ $post->created_at ? $post->created_at->format('M d, Y') : 'Recently' }}</span>
+                            @if($post->user)
+                            <span>•</span>
+                            <span><i class="far fa-user mr-1"></i>{{ $post->user->name }}</span>
+                            @endif
+                        </div>
 
-                    <div
-                        class="flex items-center pt-3 border-t border-gray-100 @guest justify-center @else justify-between @endguest">
+                        <h3 class="font-bold text-lg text-slate-800 hover:text-purple-600 transition line-clamp-2 mb-3 font-heading leading-snug">
+                            <a href="{{ route('posts.show', $post) }}">
+                                {{ $post->title }}
+                            </a>
+                        </h3>
+                    </div>
 
-                        <a href="{{ route('posts.show',$post) }}" target="_blank"
-                            class="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors flex items-center">
-                            <i class="fas fa-eye mr-2"></i> View
+                    <!-- Action Footer -->
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-2 mt-auto">
+                        <a href="{{ route('posts.show', $post) }}"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 font-semibold text-xs transition duration-200">
+                            <i class="fas fa-eye"></i> View Post
                         </a>
 
                         @auth
                         @if($post->user_id === auth()->id())
-                        <div class="flex space-x-2">
-                            <a href="{{ route('posts.edit',$post) }}"
-                                class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-medium hover:bg-yellow-200 transition-colors flex items-center">
-                                <i class="fas fa-edit mr-2"></i> Edit
+                        <div class="flex items-center gap-1.5">
+                            <a href="{{ route('posts.edit', $post) }}"
+                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700 hover:bg-amber-100 font-semibold text-xs transition duration-200"
+                                title="Edit post">
+                                <i class="fas fa-edit"></i> Edit
                             </a>
 
                             <button type="button"
-                                class="px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors flex items-center deleteBtn"
-                                data-id="{{ $post->id }}" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                <i class="fas fa-trash mr-2"></i> Delete
+                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 font-semibold text-xs transition duration-200 deleteBtn"
+                                data-id="{{ $post->id }}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal"
+                                title="Delete post">
+                                <i class="fas fa-trash-alt"></i>
                             </button>
                         </div>
                         @endif
@@ -102,58 +166,71 @@
             </div>
 
             @empty
-            <div class="col-span-full flex justify-center">
-                <div class="flex flex-col items-center justify-center bg-white rounded-2xl shadow-md p-10 text-center max-w-md w-full">
-                    <div class="w-24 h-8 rounded-full gradient-bg flex items-center justify-center mb-6">
-                        <i class="fas fa-search text-white text-4xl"></i>
+            <!-- Empty State -->
+            <div class="col-span-full flex justify-center py-12">
+                <div class="flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm border border-slate-200/80 p-8 sm:p-12 text-center max-w-lg w-full">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 flex items-center justify-center text-white text-3xl shadow-lg shadow-purple-500/20 mb-6">
+                        <i class="fas fa-folder-open"></i>
                     </div>
+
                     @if(request('search') || request('status') !== null)
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">No matching posts found</h3>
-                    <p class="text-gray-600 mb-6">Try adjusting your search or filter to find what you're looking for.</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2 font-heading">No matching posts</h3>
+                    <p class="text-slate-500 mb-6 text-sm">We couldn't find anything matching your search criteria.</p>
                     <a href="{{ route('home') }}"
-                        class="px-5 py-2.5 rounded-lg bg-gray-100 text-gray-800 font-medium hover:bg-gray-200 transition-colors flex items-center">
-                        <i class="fas fa-arrow-left mr-2"></i> Back to All Posts
+                        class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition flex items-center gap-2">
+                        <i class="fas fa-arrow-left"></i> View All Posts
                     </a>
                     @else
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">No posts yet</h3>
-                    <p class="text-gray-600 mb-6">Be the first to share your thoughts and ideas!</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2 font-heading">No posts published yet</h3>
+                    <p class="text-slate-500 mb-6 text-sm">Be the first to share an inspiring story, idea or photography post with the community!</p>
                     <a href="{{ route('posts.create') }}"
-                        class="px-5 py-2.5 rounded-lg gradient-bg text-white font-medium shadow-md hover:shadow-lg transition-shadow flex items-center">
-                        <i class="fas fa-plus-circle mr-2"></i> Create First Post
+                        class="gradient-btn px-6 py-3 rounded-xl text-white font-bold text-sm shadow-md flex items-center gap-2">
+                        <i class="fas fa-plus-circle"></i> Create First Post
                     </a>
                     @endif
                 </div>
             </div>
             @endforelse
         </div>
-        <div class="mt-10">
+
+        <!-- Pagination -->
+        <div class="mt-8">
             {{ $posts->links('vendor.pagination.custom') }}
         </div>
 
+    </div>
 
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content rounded-xl shadow-lg">
-                    <div class="modal-header border-b">
-                        <h5 class="modal-title">Confirm Delete</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-3xl border-0 shadow-2xl overflow-hidden">
+                <div class="modal-header border-b border-slate-100 bg-slate-50/50 px-6 py-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center text-sm font-bold">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h5 class="modal-title font-bold text-slate-900 font-heading">Confirm Delete</h5>
                     </div>
-                    <div class="modal-body">
-                        <p class="text-gray-700">Are you sure you want to delete this post?</p>
-                    </div>
-                    <div class="modal-footer border-t">
-                        <button type="button" class="btn btn-secondary rounded-lg" data-bs-dismiss="modal">Cancel</button>
-
-                        <form method="POST" id="deleteForm">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger rounded-lg">Yes, Delete</button>
-                        </form>
-                    </div>
+                    <button type="button" class="btn-close text-xs" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-6 py-6 text-slate-600 text-sm">
+                    <p>Are you sure you want to permanently delete this post and all its images? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer border-t border-slate-100 bg-slate-50/50 px-6 py-4 flex gap-2">
+                    <button type="button" class="px-4 py-2 rounded-xl text-slate-700 bg-slate-200 hover:bg-slate-300 font-semibold text-sm transition" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <form method="POST" id="deleteForm" class="m-0">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-md transition">
+                            Yes, Delete
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-    </x-app-layout>
+    </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -168,7 +245,7 @@
                     clearTimeout(timer);
                     timer = setTimeout(() => {
                         form.submit();
-                    }, 1000);
+                    }, 600);
                 });
             }
 
@@ -182,41 +259,4 @@
             }
         });
     </script>
-
-    <style>
-        .card-hover {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-hover .post-image {
-            transition: transform 0.4s ease;
-        }
-
-        .card-hover:hover .post-image {
-            transform: scale(1.05);
-        }
-
-        body.modal-open {
-            overflow: hidden;
-            padding-right: 0 !important;
-        }
-
-        @media (max-width: 640px) {
-            .modal-dialog {
-                margin: 0;
-                width: 100%;
-                max-width: 100%;
-                position: fixed;
-                bottom: 0;
-            }
-
-            .modal-content {
-                border-radius: 1rem 1rem 0 0;
-            }
-        }
-    </style>
+</x-app-layout>

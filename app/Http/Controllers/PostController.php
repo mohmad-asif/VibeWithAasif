@@ -32,8 +32,12 @@ class PostController extends Controller
             'is_active' => $postData->is_active,
         ]);
 
-        foreach ($postData->images as $image) {
-            $this->storeImage($post->id, $image);
+        if (!empty($postData->images)) {
+            foreach ($postData->images as $image) {
+                if ($image && method_exists($image, 'isValid') && $image->isValid()) {
+                    $this->storeImage($post->id, $image);
+                }
+            }
         }
 
         return redirect()->route('home')->with('success', 'Post created successfully.');
@@ -59,10 +63,6 @@ class PostController extends Controller
 
         $postData = PostData::fromRequest($request, Auth::id());
 
-        if (empty($postData->keep_images) && empty($postData->images)) {
-            return back()->withErrors(['images' => 'At least one image is required.']);
-        }
-
         $post->update([
             'title' => $postData->title,
             'category' => $postData->category,
@@ -76,8 +76,12 @@ class PostController extends Controller
             }
         }
 
-        foreach ($postData->images as $image) {
-            $this->storeImage($post->id, $image);
+        if (!empty($postData->images)) {
+            foreach ($postData->images as $image) {
+                if ($image && method_exists($image, 'isValid') && $image->isValid()) {
+                    $this->storeImage($post->id, $image);
+                }
+            }
         }
 
         return redirect()->route('home')->with('success', 'Post updated successfully.');
@@ -151,45 +155,4 @@ class PostController extends Controller
             'path' => $path,
         ]);
     }
-
-    // public function index(Request $request)
-    // {
-    //     $query = Post::with(['images' => fn($q) => $q->limit(1)])->where('is_active', true);
-
-    //     if ($request->filled('search')) {
-    //         $query->where(function ($q) use ($request) {
-    //             $q->where('title', 'like', "%{$request->search}%")
-    //                 ->orWhere('category', 'like', "%{$request->search}%");
-    //         });
-    //     }
-
-    //     $posts = $query->latest()->paginate(6)->withQueryString();
-
-    //     return view('home', [
-    //         'posts' => $posts,
-    //         'status' => 'active',
-    //         'guest' => false,
-    //     ]);
-    // }
-
-    // public function allPosts(Request $request)
-    // {
-    //     $query = Post::with(['images' => fn($q) => $q->limit(1)]);
-
-    //     if ($request->filled('search')) {
-    //         $query->where(function ($q) use ($request) {
-    //             $q->where('title', 'like', "%{$request->search}%")
-    //                 ->orWhere('category', 'like', "%{$request->search}%");
-    //         });
-    //     }
-
-    //     $status = $request->get('status', 'all');
-    //     $query->when($status === 'active', fn($q) => $q->where('is_active', true))
-    //         ->when($status === 'inactive', fn($q) => $q->where('is_active', false));
-
-    //     $posts = $query->latest()->paginate(6)->withQueryString();
-
-    //     return view('home', compact('posts', 'status'))->with('guest', false);
-    // }
-
 }
