@@ -19,6 +19,13 @@ class Post extends Model
         'is_active'
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
+
 
     public function images()
     {
